@@ -48,6 +48,7 @@ class MakeSourceLinks
   void setVerbosity(int verbosity) { m_verbosity = verbosity; }
 
   void set_pp_mode(bool ispp) { m_pp_mode = ispp; }
+  void set_cluster_error_mode(ClusterErrorPara::ClusterErrorMode mode) { m_cluster_error_mode = mode; }
   void set_cluster_edge_rejection(int edge) { m_cluster_edge_rejection = edge; }
   void ignoreLayer(int layer) { m_ignoreLayer.insert(layer); }
 
@@ -80,6 +81,7 @@ class MakeSourceLinks
   bool m_pp_mode = false;
   std::set<int> m_ignoreLayer;
   int m_cluster_edge_rejection = 0;
+  ClusterErrorPara::ClusterErrorMode m_cluster_error_mode = ClusterErrorPara::ClusterErrorMode::Auto;
   TpcClusterMover _clusterMover;
 
   ClusterErrorPara _ClusErrPara;

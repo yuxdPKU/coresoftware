@@ -51,7 +51,25 @@ class ClusterErrorPara
 
   using error_t = std::pair<double, double>;
 
-  static error_t get_clusterv5_modified_error(TrkrCluster *cluster, double cluster_r, TrkrDefs::cluskey key);
+  enum class ClusterErrorMode
+  {
+    Auto,
+    Raw,
+    Simulation,
+    Data
+  };
+
+  static ClusterErrorMode resolve_error_mode(ClusterErrorMode mode);
+  static const char *get_error_mode_name(ClusterErrorMode mode);
+  static error_t get_clusterv5_modified_error(
+      TrkrCluster *cluster,
+      double cluster_r,
+      TrkrDefs::cluskey key);
+  static error_t get_clusterv5_modified_error(
+      TrkrCluster *cluster,
+      double cluster_r,
+      TrkrDefs::cluskey key,
+      ClusterErrorMode mode);
   error_t get_cluster_error(TrkrCluster *cluster, double cluster_r, TrkrDefs::cluskey key, float qOverR, float slope);
   error_t get_cluster_error(TrkrCluster *cluster, TrkrDefs::cluskey key, double alpha, double beta);
 

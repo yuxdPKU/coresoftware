@@ -15,6 +15,7 @@
 
 #include <trackbase/ActsSourceLink.h>
 #include <trackbase/ActsTrackFittingAlgorithm.h>
+#include <trackbase/ClusterErrorPara.h>
 
 #include <tpc/TpcGlobalPositionWrapper.h>
 
@@ -157,6 +158,15 @@ class PHActsTrkFitter : public SubsysReco
   void setDirectNavigation(bool flag) { m_directNavigation = flag; }
   void setClusterEdgeRejection(int edge ) { m_cluster_edge_rejection = edge; }
 
+  /// cluster error mode. The enum is owned by ClusterErrorPara; this alias
+  /// keeps the public fitter configuration syntax consistent with the other
+  /// PHActsTrkFitter modes without introducing a second enum or conversion.
+  using ClusterErrorMode = ClusterErrorPara::ClusterErrorMode;
+
+  /// select the cluster measurement errors used by the Acts fitter
+  void setClusterErrorMode( const ClusterErrorMode value )
+  { m_cluster_error_mode = value; }
+
   /// extrapolation mode
   enum class ExtrapolationMode
   {
@@ -258,6 +268,9 @@ class PHActsTrkFitter : public SubsysReco
 
   /// Flag for pp running
   bool m_pp_mode = false;
+
+  ClusterErrorMode m_cluster_error_mode = ClusterErrorMode::Auto;
+  ClusterErrorPara::ClusterErrorMode m_resolved_cluster_error_mode = ClusterErrorPara::ClusterErrorMode::Auto;
 
   /// direct navigation, in acts
   bool m_directNavigation = true;

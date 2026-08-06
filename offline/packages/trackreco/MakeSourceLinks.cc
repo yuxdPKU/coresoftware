@@ -247,7 +247,7 @@ SourceLinkVec MakeSourceLinks::getSourceLinks(
     // get errors
     Acts::Vector3 global = tGeometry->getGlobalPosition(cluskey, cluster);
     double clusRadius = sqrt(global[0] * global[0] + global[1] * global[1]);
-    auto para_errors = ClusterErrorPara::get_clusterv5_modified_error(cluster, clusRadius, cluskey);
+    auto para_errors = ClusterErrorPara::get_clusterv5_modified_error(cluster, clusRadius, cluskey, m_cluster_error_mode);
     cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = para_errors.first * Acts::UnitConstants::cm2;
     cov(Acts::eBoundLoc0, Acts::eBoundLoc1) = 0;
     cov(Acts::eBoundLoc1, Acts::eBoundLoc0) = 0;
@@ -535,7 +535,7 @@ SourceLinkVec MakeSourceLinks::getSourceLinksClusterMover(
     Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
 
     double clusRadius = sqrt(global[0] * global[0] + global[1] * global[1]);
-    auto para_errors = ClusterErrorPara::get_clusterv5_modified_error(cluster, clusRadius, cluskey);
+    auto para_errors = ClusterErrorPara::get_clusterv5_modified_error(cluster, clusRadius, cluskey, m_cluster_error_mode);
     cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = para_errors.first * Acts::UnitConstants::cm2;
     cov(Acts::eBoundLoc0, Acts::eBoundLoc1) = 0;
     cov(Acts::eBoundLoc1, Acts::eBoundLoc0) = 0;

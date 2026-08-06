@@ -513,41 +513,71 @@ ClusterErrorPara::ClusterErrorPara():
 }
 
 //_________________________________________________________________________________
-ClusterErrorPara::error_t ClusterErrorPara::get_clusterv5_modified_error(TrkrCluster* cluster, double /*unused*/, TrkrDefs::cluskey key)
+ClusterErrorPara::ClusterErrorMode ClusterErrorPara::resolve_error_mode(ClusterErrorMode mode)
 {
-
-  static const bool is_data_reco = []() {
-    recoConsts* rc = recoConsts::instance();
-    if (rc->FlagExist("CDB_GLOBALTAG"))
-    {
-      if (rc->get_StringFlag("CDB_GLOBALTAG").find("MDC") != std::string::npos)
-      {
-        return false;
-      }
-    }
-    return true;  // default to data
-  }();
-  /*
-  static bool is_data_reco{true};  // default to data
-  static bool is_data_reco_set{false};  // default to data
-  if(!is_data_reco_set){
-    recoConsts* rc = recoConsts::instance(); 
-    if(rc->FlagExist("CDB_GLOBALTAG"))
-      {
-	if(rc->get_StringFlag("CDB_GLOBALTAG").find("MDC") != std::string::npos)
-	  {
-	    is_data_reco = false;
-	  }
-      }
-    is_data_reco_set = true;
+  if (mode != ClusterErrorMode::Auto)
+  {
+    return mode;
   }
-  */
+
+  recoConsts* rc = recoConsts::instance();
+  if (rc->FlagExist("CDB_GLOBALTAG"))
+  {
+    if (rc->get_StringFlag("CDB_GLOBALTAG").find("MDC") != std::string::npos)
+    {
+      return ClusterErrorMode::Simulation;
+    }
+  }
+
+  return ClusterErrorMode::Data;
+}
+
+//_________________________________________________________________________________
+const char* ClusterErrorPara::get_error_mode_name(ClusterErrorMode mode)
+{
+  switch (mode)
+  {
+  case ClusterErrorMode::Auto:
+    return "Auto";
+  case ClusterErrorMode::Raw:
+    return "Raw";
+  case ClusterErrorMode::Simulation:
+    return "Simulation";
+  case ClusterErrorMode::Data:
+    return "Data";
+  }
+
+  return "Unknown";
+}
+
+//_________________________________________________________________________________
+ClusterErrorPara::error_t ClusterErrorPara::get_clusterv5_modified_error(
+    TrkrCluster* cluster,
+    double cluster_r,
+    TrkrDefs::cluskey key)
+{
+  return get_clusterv5_modified_error(cluster, cluster_r, key, ClusterErrorMode::Auto);
+}
+
+//_________________________________________________________________________________
+ClusterErrorPara::error_t ClusterErrorPara::get_clusterv5_modified_error(
+    TrkrCluster* cluster,
+    double /*unused*/,
+    TrkrDefs::cluskey key,
+    ClusterErrorMode mode)
+{
+  const auto resolved_mode = resolve_error_mode(mode);
   int layer = TrkrDefs::getLayer(key);
 
   double phierror = cluster->getRPhiError();
   double zerror = cluster->getZError();
 
-  if(is_data_reco==false){
+  if (resolved_mode == ClusterErrorMode::Raw)
+  {
+    return std::make_pair(square(phierror), square(zerror));
+  }
+
+  if(resolved_mode == ClusterErrorMode::Simulation){
     if (TrkrDefs::getTrkrId(key) == TrkrDefs::tpcId)
       {
 	if (layer == 7 || layer == 22 || layer == 23 || layer == 38 || layer == 39)

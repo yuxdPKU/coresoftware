@@ -548,8 +548,8 @@ bool PHTruthTrackFitter::addStateFromCluster(SvtxTrack* track,
   double px = 0;
   double py = 0;
   double pz = 0;
-  double local_x = 0;
-  double local_y = 0;
+  double local_x = std::numeric_limits<double>::quiet_NaN();
+  double local_y = std::numeric_limits<double>::quiet_NaN();
 
   for (const auto* g4hit : getTruthHits(cluskey))
   {
@@ -569,9 +569,6 @@ bool PHTruthTrackFitter::addStateFromCluster(SvtxTrack* track,
     const auto hit_px = average_or(g4hit->get_px(0), g4hit->get_px(1), particle->get_px());
     const auto hit_py = average_or(g4hit->get_py(0), g4hit->get_py(1), particle->get_py());
     const auto hit_pz = average_or(g4hit->get_pz(0), g4hit->get_pz(1), particle->get_pz());
-    const auto hit_local_x = average_or(g4hit->get_local_x(0), g4hit->get_local_x(1), 0);
-    const auto hit_local_y = average_or(g4hit->get_local_y(0), g4hit->get_local_y(1), 0);
-
     double weight = g4hit->get_edep();
     if (!std::isfinite(weight) || weight <= 0)
     {
@@ -608,8 +605,6 @@ bool PHTruthTrackFitter::addStateFromCluster(SvtxTrack* track,
     px += weight * hit_px;
     py += weight * hit_py;
     pz += weight * hit_pz;
-    local_x += weight * hit_local_x;
-    local_y += weight * hit_local_y;
   }
 
   if (weight_sum <= 0)
@@ -623,9 +618,6 @@ bool PHTruthTrackFitter::addStateFromCluster(SvtxTrack* track,
   px /= weight_sum;
   py /= weight_sum;
   pz /= weight_sum;
-  local_x /= weight_sum;
-  local_y /= weight_sum;
-
   if (m_extrapolateToClusterRadius && !interpolation_hits.empty())
   {
     const auto cluster_radius = getClusterRadius(cluskey, cluster);

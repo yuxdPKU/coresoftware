@@ -252,6 +252,11 @@ int PHActsTrkFitter::InitRun(PHCompositeNode* topNode)
   std::cout << "PHActsTrkFitter::InitRun - m_fitSiliconMMs: " << m_fitSiliconMMs << std::endl;
   std::cout << "PHActsTrkFitter::InitRun - m_useMicromegas: " << m_useMicromegas << std::endl;
   std::cout << "PHActsTrkFitter::InitRun - m_extrapolation_mode: " << (int)(m_extrapolation_mode) << std::endl;
+  m_resolved_cluster_error_mode = ClusterErrorPara::resolve_error_mode(m_cluster_error_mode);
+  std::cout << "PHActsTrkFitter::InitRun - cluster error mode: "
+            << ClusterErrorPara::get_error_mode_name(m_cluster_error_mode)
+            << " -> " << ClusterErrorPara::get_error_mode_name(m_resolved_cluster_error_mode)
+            << std::endl;
 
   if (createNodes(topNode) != Fun4AllReturnCodes::EVENT_OK)
   {
@@ -595,6 +600,7 @@ void PHActsTrkFitter::loopTracks(Acts::Logging::Level logLevel)
       makeSourceLinks.initialize(_tpccellgeo, m_tGeometry, _topNode);
       makeSourceLinks.setVerbosity(Verbosity());
       makeSourceLinks.set_pp_mode(m_pp_mode);
+      makeSourceLinks.set_cluster_error_mode(m_resolved_cluster_error_mode);
       makeSourceLinks.set_cluster_edge_rejection(m_cluster_edge_rejection);
       for (const auto& layer : m_ignoreLayer)
       {
